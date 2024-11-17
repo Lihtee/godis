@@ -8,8 +8,9 @@ import (
 )
 
 const (
-	getCommand = "get"
-	setCommand = "set"
+	getCommand    = "get"
+	setCommand    = "set"
+	deleteCommand = "delete"
 )
 
 const (
@@ -51,9 +52,32 @@ func routeCommandToStorage(command string) (string, bool) {
 		default:
 			return typeNotSupportedResponse, false
 		}
+	case deleteCommand:
+		return handleDeleteKey(tokens)
 	default:
 		return commandNotSupportedResponse, false
 	}
+}
+
+func handleDeleteKey(tokens []string) (string, bool) {
+	if len(tokens) < 2 {
+		return notEnoughArgumentsResponse, false
+	}
+	if len(tokens) > 2 {
+		return tooManyArgumentsResponse, false
+	}
+
+	key := tokens[1]
+	if key == "" {
+		return emptyKeyResponse, false
+	}
+
+	err := godisStorage.DeleteKey(key)
+	if err != nil {
+		return storageFailureResponse, false
+	}
+
+	return "", true
 }
 
 func handleGetString(tokens []string) (string, bool) {

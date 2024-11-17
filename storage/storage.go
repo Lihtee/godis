@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"errors"
 	"sync"
 	"time"
 )
@@ -36,4 +37,23 @@ func New(disableTtl bool) *GodisStorage {
 		go storage.ttlWorker()
 	}
 	return storage
+}
+
+func (storage *GodisStorage) DeleteKey(key string) error {
+	if storage.mutex == nil {
+		return errors.New("storage is not initialized, cannot delete")
+	}
+
+	storage.mutex.Lock()
+	defer storage.mutex.Unlock()
+
+	value, ok := storage.data[key]
+	if !ok {
+		return nil
+	}
+
+	value.ttl = nil
+	delete(storage.data, key)
+
+	return nil
 }
