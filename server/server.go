@@ -5,10 +5,12 @@ import (
 	storage "dreyspi/godis/storage"
 	"fmt"
 	"net"
+	"strconv"
 	"strings"
+	"time"
 )
 
-var godisStorage = storage.New()
+var godisStorage = storage.New(false)
 
 func main() {
 	// Start listening on a specific port
@@ -82,6 +84,7 @@ const (
 	storageFailureResponse      = "Storage Failure" // Todo: be more specific
 	typeNotSupportedResponse    = "Type Not Supported"
 	commandNotSupportedResponse = "Command Not Supported"
+	ttlParseErrorResponse       = "TTL Parse Error"
 )
 
 const (
@@ -161,9 +164,13 @@ func handleSetString(tokens []string) (string, bool) {
 	}
 
 	value := tokens[3]
-	var ttl string
+	var ttl time.Duration
 	if len(tokens) == 5 {
-		ttl = tokens[4]
+		var err error
+		ttl, err = parseTtl(tokens[4])
+		if err != nil {
+			return fmt.Sprintf("%s: %v", ttlParseErrorResponse, err), false
+		}
 	}
 
 	err := godisStorage.SetString(key, value, ttl)
@@ -194,4 +201,42 @@ func makeInvisibleCharsVisible(input string) string {
 		}
 	}
 	return builder.String()
+}
+
+func parseTtl(ttl string) (time.Duration, error) {
+	trimmedTtl := strings.Trim(ttl, " ")
+	if trimmedTtl == "" {
+		return 0, nil
+	}
+
+	unitLetter := trimmedTtl[len(trimmedTtl)-1]
+	var unit time.Duration
+	switch unitLetter {
+	case 's':
+		unit = time.Second
+	case 'm':
+		unit = time.Minute
+	case 'h':
+		unit = time.Hour
+	case 'd':
+		unit = time.Hour * 24
+	case 'w':
+		unit = time.Hour * 24 * 7
+	default:
+		return 0, fmt.Errorf("unrecognized unit letter: %s", trimmedTtl)
+	}
+
+	amountString := trimmedTtl[:len(trimmedTtl)-1]
+	var amount int
+	var err error
+	if len(amountString) == 0 {
+		amount = 1
+	} else {
+		amount, err = strconv.Atoi(amountString)
+		if err != nil {
+			return 0, fmt.Errorf("failed to parse amount: %s", amountString)
+		}
+	}
+
+	return time.Duration(amount * int(unit)), nil
 }
