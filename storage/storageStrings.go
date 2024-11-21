@@ -50,7 +50,7 @@ func (storage *GodisStorage) SetString(key string, value string, ttl time.Durati
 			prevValue.ttl = nil
 		}
 	}
-	storage.data[key] = newValue
+	storage.data[key] = &newValue
 
 	return nil
 }

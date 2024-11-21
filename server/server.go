@@ -19,6 +19,7 @@ const (
 	typeNotSupportedResponse    = "Type Not Supported"
 	commandNotSupportedResponse = "Command Not Supported"
 	ttlParseErrorResponse       = "TTL Parse Error"
+	invalidDictVInputResponse   = "Invalid dict input"
 )
 
 var godisStorage = storage.New(false)

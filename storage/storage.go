@@ -21,7 +21,7 @@ type GodisTtl struct {
 }
 
 type GodisStorage struct {
-	data  map[string]GodisValue
+	data  map[string]*GodisValue
 	mutex *sync.RWMutex
 	ttl   []GodisTtl
 	// Todo : logger
@@ -29,7 +29,7 @@ type GodisStorage struct {
 
 func New(disableTtl bool) *GodisStorage {
 	storage := &GodisStorage{
-		data:  make(map[string]GodisValue),
+		data:  make(map[string]*GodisValue),
 		mutex: &sync.RWMutex{},
 		ttl:   []GodisTtl{},
 	}
