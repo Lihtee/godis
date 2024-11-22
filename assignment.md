@@ -6,7 +6,7 @@ Desired features:
 - [ ] Key-value storage with support of
   - [x] string
   - [ ] lists
-  - [ ] dict
+  - [x] dict
 - [x] Per-key TTL
 - Operations:
     - [x] Get

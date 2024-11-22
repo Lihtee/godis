@@ -63,7 +63,7 @@ func TestRemoveStaleKeys(t *testing.T) {
 				stringValue: key,
 				ttl:         ttl,
 			}
-			storage.data[key] = value
+			storage.data[key] = &value
 			storage.ttl = append(storage.ttl, GodisTtl{key: key, ttl: value.ttl})
 		}
 		storage.removeStaleKeys()

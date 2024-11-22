@@ -21,15 +21,11 @@ func (storage *GodisStorage) GetDict(key string, fields ...string) (map[string]s
 	if fields != nil && len(fields) != 0 {
 		res := map[string]string{}
 		for _, field := range fields {
-			if field == "" {
-				res[field] = NullValue
+			fieldValue, ok := value.dictValue[field]
+			if ok {
+				res[field] = fieldValue
 			} else {
-				fieldValue, ok := value.dictValue[field]
-				if ok {
-					res[field] = fieldValue
-				} else {
-					res[field] = NullValue
-				}
+				res[field] = NullValue
 			}
 		}
 
